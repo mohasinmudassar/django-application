@@ -1,25 +1,14 @@
-# For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.8-slim
+# Python version
+FROM python:3 
 
-EXPOSE 8000
+# This command is used to install django
+RUN pip install django==3.2
 
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE=1
+# Copy the code from current folder to Docker Container
+COPY . .
 
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED=1
+# To migrate the changes
+RUN python manage.py migrate
 
-# Install pip requirements
-COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
-
-WORKDIR /app
-COPY . /app
-
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-USER appuser
-
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "todoApp.wsgi"]
+# Running the main CMD Command
+CMD ["python","manage.py","runserver"]
